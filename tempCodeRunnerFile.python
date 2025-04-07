@@ -1,0 +1,117 @@
+from manim import *
+
+class CoinChangeExplanation(Scene):
+    def construct(self):
+        # 1. Title Screen
+        title = Text("Coin Change Problem Explanation", font_size=48)
+        self.play(Write(title))
+        self.wait(2)
+        self.play(FadeOut(title))
+
+        # 2. Problem Statement
+        problem_statement = VGroup(
+            Text("Given coins of different denominations", font_size=32),
+            Text("and a total amount, find the fewest", font_size=32),
+            Text("number of coins needed to form that amount.", font_size=32),
+            Text("Example: coins = [1, 2, 5], amount = 11", font_size=32),
+            Text("Output: 3  (i.e. 5 + 5 + 1)", font_size=32)
+        ).arrange(DOWN, aligned_edge=LEFT)
+        self.play(FadeIn(problem_statement, shift=UP))
+        self.wait(3)
+        self.play(FadeOut(problem_statement))
+
+        # 3. Recursion Explanation
+        recursion_title = Text("Recursive Approach", font_size=40)
+        recursion_text = Text(
+            "For any amount A:\n"
+            "  f(A) = min(f(A - coin) + 1) for each coin\n"
+            "with base case f(0) = 0", font_size=28
+        )
+        recursion_group = VGroup(recursion_title, recursion_text).arrange(DOWN)
+        self.play(FadeIn(recursion_group, shift=UP))
+        self.wait(3)
+
+        # A simple recursion tree visualization (illustrative purpose)
+        # Root node: amount 11
+        root = Circle(radius=0.3, color=BLUE).shift(LEFT * 3 + UP * 1)
+        root_label = Text("11", font_size=24).move_to(root.get_center())
+        root_group = VGroup(root, root_label)
+
+        # Two child nodes: representing subtracting one coin (for illustration)
+        child1 = Circle(radius=0.3, color=GREEN).next_to(root, RIGHT, buff=1.5)
+        child1_label = Text("10", font_size=24).move_to(child1.get_center())
+        child1_group = VGroup(child1, child1_label)
+
+        child2 = Circle(radius=0.3, color=GREEN).next_to(root, DOWN, buff=1.5)
+        child2_label = Text("9", font_size=24).move_to(child2.get_center())
+        child2_group = VGroup(child2, child2_label)
+
+        self.play(Create(root_group))
+        self.wait(1)
+        self.play(Create(child1_group), Create(child2_group))
+        self.play(
+            Create(Line(root.get_center(), child1.get_center())),
+            Create(Line(root.get_center(), child2.get_center()))
+        )
+        self.wait(3)
+        self.play(FadeOut(root_group), FadeOut(child1_group), FadeOut(child2_group))
+        self.play(FadeOut(recursion_group))
+
+        # 4. Dynamic Programming Explanation
+        dp_title = Text("Dynamic Programming Approach", font_size=40)
+        dp_text = Text("Store intermediate results to avoid redundant work.", font_size=28)
+        dp_group = VGroup(dp_title, dp_text).arrange(DOWN)
+        self.play(FadeIn(dp_group, shift=UP))
+        self.wait(2)
+
+        # Create a DP table visualization for amounts 0 to 11
+        # Initially, dp[0] = 0, and others are 'inf'
+        dp_values = ["0"] + ["∞"] * 11
+        # Build a table with one row for dp values and column labels from 0 to 11.
+        table = Table(
+            [dp_values],
+            row_labels=[Text("dp", font_size=24)],
+            col_labels=[Text(str(i), font_size=24) for i in range(12)],
+            include_outer_lines=True
+        )
+        table.scale(0.7)
+        self.play(FadeIn(table, scale=0.5))
+        self.wait(3)
+
+        # Simulate an update for dp[1]: For coin = 1, dp[1] becomes 1.
+        # In manim's Table, data cells are indexed starting from 1 (if row labels exist) and similarly for columns.
+        cell_1 = table.get_cell((1, 2))  # dp[1] cell (row 1, column 2)
+        updated_value = Text("1", font_size=24).move_to(cell_1.get_center())
+        self.play(ReplacementTransform(cell_1.copy(), updated_value))
+        self.wait(2)
+        self.play(FadeOut(updated_value), FadeOut(table), FadeOut(dp_group))
+
+        # 5. Pseudocode Explanation
+        pseudo_title = Text("Pseudocode", font_size=40)
+        pseudo_code = Code(
+            code="""def coinChange(coins, amount):
+    dp = [float('inf')] * (amount + 1)
+    dp[0] = 0
+    for i in range(1, amount + 1):
+        for coin in coins:
+            if i - coin >= 0:
+                dp[i] = min(dp[i], dp[i - coin] + 1)
+    return dp[amount] if dp[amount] != float('inf') else -1""",
+            language="Python",
+            font="Monospace",
+            line_spacing=0.4,
+            style="monokai"
+        )
+        pseudo_group = VGroup(pseudo_title, pseudo_code).arrange(DOWN)
+        self.play(FadeIn(pseudo_group, shift=UP))
+        self.wait(5)
+        self.play(FadeOut(pseudo_group))
+
+        # 6. Conclusion
+        conclusion = Text(
+            "Recursion with DP optimization\nleads to an efficient solution.\nThanks for watching!",
+            font_size=36
+        )
+        self.play(FadeIn(conclusion, shift=UP))
+        self.wait(3)
+        self.play(FadeOut(conclusion))
